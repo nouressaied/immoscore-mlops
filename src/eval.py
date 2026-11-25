@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import json
 
@@ -15,9 +14,7 @@ from sklearn.metrics import (
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def calculate_metrics(model, df, features):
-    X = df[features]
-    y = df["SalePrice"]
+def calculate_metrics(model, X, y):
 
     predictions = model.predict(X)
 
@@ -29,26 +26,40 @@ def calculate_metrics(model, df, features):
 
 
 def evaluate_model():
+
     # Charger le modèle et les variables sélectionnées
-    model_path = ROOT / "models" / "model.joblib"
+    model_path = ROOT / "models" / "model.pkl"
     artifact = joblib.load(model_path)
 
     model = artifact["model"]
     features = artifact["features"]
 
-    # Charger les données Train et Test
-    train_df = pd.read_csv(
-        ROOT / "data" / "processed" / "train.csv"
+    # Charger les données Train
+    X_train = pd.read_csv(
+        ROOT / "data" / "split" / "X_train.csv"
     )
 
-    test_df = pd.read_csv(
-        ROOT / "data" / "processed" / "test.csv"
+    y_train = pd.read_csv(
+        ROOT / "data" / "split" / "y_train.csv"
+    )["SalePrice"]
+
+    # Charger les données Test
+    X_test = pd.read_csv(
+        ROOT / "data" / "split" / "X_test.csv"
     )
+
+    y_test = pd.read_csv(
+        ROOT / "data" / "split" / "y_test.csv"
+    )["SalePrice"]
+
+    # Respecter l'ordre des variables du modèle
+    X_train = X_train[features]
+    X_test = X_test[features]
 
     # Évaluer le modèle
     metrics = {
-        "train": calculate_metrics(model, train_df, features),
-        "test": calculate_metrics(model, test_df, features)
+        "train": calculate_metrics(model, X_train, y_train),
+        "test": calculate_metrics(model, X_test, y_test)
     }
 
     # Enregistrer les métriques
