@@ -1,6 +1,5 @@
-
 process:
-  corr_threshold: 0.5
+  corr_threshold: 0.6
 
 split:
   test_size: 0.2
